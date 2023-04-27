@@ -56,9 +56,9 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/chatgpt_icon2.png"
+  image_path: "assets/images/chatgpt_icon.png"
   adaptive_icon_background: "#343541"
-  adaptive_icon_foreground: "assets/images/chatgpt_icon2.png"
+  adaptive_icon_foreground: "assets/images/chatgpt_icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
