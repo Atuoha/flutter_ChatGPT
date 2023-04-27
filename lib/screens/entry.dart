@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt/constants/colors.dart';
 import 'package:flutter_chatgpt/resources/string_manager.dart';
-
+import 'package:flutter_chatgpt/screens/auth.dart';
 import '../resources/assets_manager.dart';
 
 class AppEntry extends StatelessWidget {
@@ -9,6 +9,18 @@ class AppEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // navigate to auth screen
+    void navigateToAuth({required bool isSignIn}) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AuthScreen(
+            isSignIn: isSignIn,
+          ),
+        ),
+      );
+    }
+
+    // style for text
     TextStyle style = const TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.w700,
@@ -34,19 +46,18 @@ class AppEntry extends StatelessWidget {
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: btnBg),
-                  onPressed: ()=> null,
-                  child: Text('Login'),
+                  onPressed: () => navigateToAuth(isSignIn: true),
+                  child: const Text('Login'),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: btnBg),
-                  onPressed: ()=> null,
-                  child: Text('Signup'),
+                  onPressed: () => navigateToAuth(isSignIn: false),
+                  child: const Text('Signup'),
                 )
-              ]
+              ],
             )
           ],
-
         ),
       ),
     );

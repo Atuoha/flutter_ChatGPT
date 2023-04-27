@@ -1,0 +1,3 @@
+enum TextFieldEnum{
+  email, password
+}
