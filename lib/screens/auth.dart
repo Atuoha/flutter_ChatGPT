@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt/constants/colors.dart';
 import 'package:flutter_chatgpt/resources/assets_manager.dart';
-
+import '../components/loading_widget.dart';
 import '../constants/enums/text_field_enum.dart';
+import '../business_logic/export.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key, required this.isSignIn}) : super(key: key);
@@ -19,6 +21,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool isSignIn = true;
   bool isPasswordObscured = true;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -42,7 +45,7 @@ class _AuthScreenState extends State<AuthScreen> {
       controller: controller,
       autofocus: textFieldEnum == TextFieldEnum.email ? true : false,
       obscureText:
-          textFieldEnum == TextFieldEnum.password ? isPasswordObscured:false,
+          textFieldEnum == TextFieldEnum.password ? isPasswordObscured : false,
       validator: (value) {
         if (value!.isEmpty) {
           return '$label can not be empty';
@@ -115,7 +118,12 @@ class _AuthScreenState extends State<AuthScreen> {
 
   // google auth
   void googleAuth() {
+    print('hellooooo');
     FocusScope.of(context).unfocus();
+    setState(() {
+      isLoading = true;
+    });
+    context.read<GoogleAuthCubit>().handleGoogleAuth();
   }
 
   // handle auth
@@ -124,6 +132,21 @@ class _AuthScreenState extends State<AuthScreen> {
     var valid = _formKey.currentState!.validate();
     if (!valid) {
       return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    if (isSignIn) {
+      context.read<SignInCubit>().handleSignIn(
+            email: emailController.text,
+            password: passwordController.text,
+          );
+    } else {
+      context.read<SignUpCubit>().handleSignUp(
+            email: emailController.text,
+            username: usernameController.text,
+            password: passwordController.text,
+          );
     }
   }
 
@@ -152,115 +175,121 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      kTextField(
-                        controller: emailController,
-                        textFieldEnum: TextFieldEnum.email,
-                        hintText: 'johndoe@gmail.com',
-                        label: 'Email Address',
-                      ),
-                       const SizedBox(height: 10),
-                      !isSignIn ? kTextField(
-                          controller: usernameController,
-                          textFieldEnum: TextFieldEnum.username,
-                          hintText: 'John Doe',
-                          label: 'Username',
-                        ): const SizedBox.shrink(),
-                      SizedBox(height: isSignIn? 0:10),
-                      kTextField(
-                        controller: passwordController,
-                        textFieldEnum: TextFieldEnum.password,
-                        hintText: '********',
-                        label: 'Password',
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: btnBg,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 15,
-                          ),
-                        ),
-                        onPressed: () => handleAuth(),
-                        child: const Text(
-                          'Continue',
-                          style: TextStyle(
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Center(
-                        child: Wrap(
+                !isLoading
+                    ? Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(
-                              !isSignIn
-                                  ? 'Already have an account?'
-                                  : 'Don\'t have an account?',
-                              style: const TextStyle(color: primaryColor),
+                            kTextField(
+                              controller: emailController,
+                              textFieldEnum: TextFieldEnum.email,
+                              hintText: 'johndoe@gmail.com',
+                              label: 'Email Address',
                             ),
-                            const SizedBox(width: 5),
-                            GestureDetector(
-                              onTap: () => setState(() {
-                                isSignIn = !isSignIn;
-                              }),
-                              child: Text(
-                                !isSignIn ? 'Log in' : 'Sign up',
-                                style: const TextStyle(color: btnBg),
+                            const SizedBox(height: 10),
+                            !isSignIn
+                                ? kTextField(
+                                    controller: usernameController,
+                                    textFieldEnum: TextFieldEnum.username,
+                                    hintText: 'John Doe',
+                                    label: 'Username',
+                                  )
+                                : const SizedBox.shrink(),
+                            SizedBox(height: isSignIn ? 0 : 10),
+                            kTextField(
+                              controller: passwordController,
+                              textFieldEnum: TextFieldEnum.password,
+                              hintText: '********',
+                              label: 'Password',
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: btnBg,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                  horizontal: 15,
+                                ),
                               ),
-                            )
+                              onPressed: () => handleAuth(),
+                              child: const Text(
+                                'Continue',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Center(
+                              child: Wrap(
+                                children: [
+                                  Text(
+                                    !isSignIn
+                                        ? 'Already have an account?'
+                                        : 'Don\'t have an account?',
+                                    style: const TextStyle(color: primaryColor),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  GestureDetector(
+                                    onTap: () => setState(() {
+                                      isSignIn = !isSignIn;
+                                    }),
+                                    child: Text(
+                                      !isSignIn ? 'Log in' : 'Sign up',
+                                      style: const TextStyle(color: btnBg),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: const [
+                                Expanded(child: Divider(color: Colors.grey)),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Text(
+                                    'OR',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(child: Divider(color: Colors.grey)),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 15,
+                                ),
+                              ),
+                              onPressed: () => googleAuth(),
+                              child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    AssetManager.googleImage,
+                                    width: 30,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Text(
+                                    'Continue with Google',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: const [
-                          Expanded(child: Divider(color: Colors.grey)),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(
-                              'OR',
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                          Expanded(child: Divider(color: Colors.grey)),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 15,
-                          ),
-                        ),
-                        onPressed: () => googleAuth(),
-                        child: Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              Image.asset(
-                                AssetManager.googleImage,
-                                width: 30,
-                              ),
-                              const SizedBox(width: 10),
-                              const Text(
-                                'Continue with Google',
-                                style:
-                                    TextStyle(fontSize: 18, color: Colors.grey),
-                              ),
-                            ]),
-                      ),
-                    ],
-                  ),
-                )
+                      )
+                    : const Center(child: LoadingWidget(size: 50))
               ],
             ),
           ),

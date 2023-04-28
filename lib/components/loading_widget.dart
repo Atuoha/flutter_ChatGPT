@@ -8,8 +8,8 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LoadingAnimationWidget.inkDrop(
-      color: primaryColor,
+    return LoadingAnimationWidget.hexagonDots(
+      color: btnBg,
       size: size,
     );
   }
