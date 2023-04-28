@@ -16,7 +16,7 @@ class AuthRepository {
   var error = 'Error occurred!';
 
   // sign up
-  Future<void> signup({
+  Future<void> signUp({
     required String username,
     required String email,
     required String password,

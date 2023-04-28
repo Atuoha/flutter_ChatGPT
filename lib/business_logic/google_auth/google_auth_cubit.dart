@@ -20,7 +20,7 @@ class GoogleAuthCubit extends Cubit<GoogleAuthState> {
       await authRepository.googleAuth();
       emit(state.copyWith(status: ProcessStatus.success));
     } on CustomError catch (e) {
-      emit(state.copyWith(status: ProcessStatus.error));
+      emit(state.copyWith(status: ProcessStatus.error, error:e));
     }
   }
 }
