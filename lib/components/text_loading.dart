@@ -8,8 +8,8 @@ class TextLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LoadingAnimationWidget.waveDots(
-      color: btnBg,
-      size: 40,
+      color: Colors.grey.shade300,
+      size: 30,
     );
   }
 }

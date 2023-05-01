@@ -29,7 +29,7 @@ class User extends Equatable {
 
     return User(
       email: userData['email'],
-      username: userData['fullname'],
+      username: userData['username'],
       password: "",
       authType: userData['auth_type'],
       profileImg: userData['profileImg'],

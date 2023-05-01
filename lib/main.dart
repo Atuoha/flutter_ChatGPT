@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_chatgpt/repositories/auth_repository.dart';
+import 'package:flutter_chatgpt/repositories/repos.dart';
 import 'package:flutter_chatgpt/screens/entry.dart';
 import 'constants/colors.dart';
 import 'firebase_options.dart';
@@ -32,12 +32,21 @@ class ChatGptApp extends StatelessWidget {
     );
     return MultiRepositoryProvider(
       providers: [
+        // auth repository
         RepositoryProvider(
           create: (context) => AuthRepository(
             firebaseAuth: FirebaseAuth.instance,
             firebaseFirestore: FirebaseFirestore.instance,
           ),
-        )
+        ),
+
+        // profile repository
+        RepositoryProvider(
+          create: (context) => ProfileRepository(
+            firebaseAuth: FirebaseAuth.instance,
+            firebaseFirestore: FirebaseFirestore.instance,
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -68,9 +77,18 @@ class ChatGptApp extends StatelessWidget {
               authRepository: context.read<AuthRepository>(),
             ),
           ),
+
+          // profile cubit
+          BlocProvider(
+            create: (context) => ProfileCubit(
+              profileRepository: context.read<ProfileRepository>(),
+            ),
+          ),
         ],
-        child:  MaterialApp(
-          theme: ThemeData(appBarTheme: const AppBarTheme(color:primaryColor)),
+        child: MaterialApp(
+          theme: ThemeData(
+            appBarTheme: const AppBarTheme(color: primaryColor),
+          ),
           debugShowCheckedModeBanner: false,
           home: const AppEntry(),
         ),

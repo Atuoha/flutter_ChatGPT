@@ -150,6 +150,15 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+
+  // dismiss error dialog
+  dismiss() {
+    setState(() {
+      isLoading = false;
+    });
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,6 +183,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     message: 'An error occurred! ${state.error.errorMsg}!',
                     context: context,
                     alert: CoolAlertType.error,
+                    action: dismiss
                   );
                 }
               }),
@@ -190,6 +200,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     message: 'An error occurred! ${state.error.errorMsg}!',
                     context: context,
                     alert: CoolAlertType.error,
+                      action: dismiss
                   );
                 }
               }),
@@ -202,10 +213,14 @@ class _AuthScreenState extends State<AuthScreen> {
                     isLoading = true;
                   });
                 } else if (state.status == ProcessStatus.error) {
+                  setState(() {
+                    isLoading = false;
+                  });
                   kCoolAlert(
                     message: 'An error occurred! ${state.error.errorMsg}!',
                     context: context,
                     alert: CoolAlertType.error,
+                      action: dismiss
                   );
                 }
               }),

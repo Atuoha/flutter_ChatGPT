@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../constants/firestore_ref.dart';
 import '../models/custom_error.dart';
+import '../resources/assets_manager.dart';
 
 
 class AuthRepository {
@@ -28,8 +29,7 @@ class AuthRepository {
         'id': userCredential.user!.uid,
         'username': username,
         'email': email,
-        'profileImg':
-        'https://media.istockphoto.com/id/1223671392/vector/default-profile-picture-avatar-photo-placeholder-vector-illustration.jpg?s=612x612&w=0&k=20&c=s0aTdmT5aU6b8ot7VKm11DeID6NctRCpB755rA1BIP0=',
+        'profileImg':AssetManager.avatarUrl,
         'auth_type': 'email/password'
       });
     } on fbauth.FirebaseAuthException catch (e) {

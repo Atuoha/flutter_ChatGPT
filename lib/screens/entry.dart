@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatgpt/constants/colors.dart';
 import 'package:flutter_chatgpt/resources/string_manager.dart';
 import 'package:flutter_chatgpt/screens/auth.dart';
+import '../business_logic/auth_bloc/auth_bloc.dart';
+import '../constants/enums/auth_status.dart';
 import '../resources/assets_manager.dart';
+import 'chat_screen.dart';
 
 class AppEntry extends StatelessWidget {
   const AppEntry({Key? key}) : super(key: key);
@@ -20,6 +24,15 @@ class AppEntry extends StatelessWidget {
       );
     }
 
+    // navigate to chat screen
+    void navigateToChat() {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const ChatScreen(),
+        ),
+      );
+    }
+
     // style for text
     TextStyle style = const TextStyle(
       color: Colors.white,
@@ -29,33 +42,40 @@ class AppEntry extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: primaryColor,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(AssetManager.logoWhite, width: 100),
-          const SizedBox(height: 10),
-          Text(StringManager.welcomeText, style: style),
-          const SizedBox(height: 10),
-          Text(StringManager.logText, style: style),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: btnBg),
-                onPressed: () => navigateToAuth(isSignIn: true),
-                child: const Text('Login'),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: btnBg),
-                onPressed: () => navigateToAuth(isSignIn: false),
-                child: const Text('Signup'),
-              )
-            ],
-          )
-        ],
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state.authStatus == AuthStatus.authenticated) {
+            navigateToChat();
+          }
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(AssetManager.logoWhite, width: 100),
+            const SizedBox(height: 10),
+            Text(StringManager.welcomeText, style: style),
+            const SizedBox(height: 10),
+            Text(StringManager.logText, style: style),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: btnBg),
+                  onPressed: () => navigateToAuth(isSignIn: true),
+                  child: const Text('Login'),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: btnBg),
+                  onPressed: () => navigateToAuth(isSignIn: false),
+                  child: const Text('Signup'),
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
