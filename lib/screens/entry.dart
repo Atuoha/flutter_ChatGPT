@@ -28,37 +28,34 @@ class AppEntry extends StatelessWidget {
     );
 
     return Scaffold(
-      body: Container(
-        color: primaryColor,
-        constraints: const BoxConstraints.expand(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(AssetManager.logoWhite, width: 100),
-            const SizedBox(height: 10),
-            Text(StringManager.welcomeText, style: style),
-            const SizedBox(height: 10),
-            Text(StringManager.logText, style: style),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: btnBg),
-                  onPressed: () => navigateToAuth(isSignIn: true),
-                  child: const Text('Login'),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: btnBg),
-                  onPressed: () => navigateToAuth(isSignIn: false),
-                  child: const Text('Signup'),
-                )
-              ],
-            )
-          ],
-        ),
+      backgroundColor: primaryColor,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(AssetManager.logoWhite, width: 100),
+          const SizedBox(height: 10),
+          Text(StringManager.welcomeText, style: style),
+          const SizedBox(height: 10),
+          Text(StringManager.logText, style: style),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: btnBg),
+                onPressed: () => navigateToAuth(isSignIn: true),
+                child: const Text('Login'),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: btnBg),
+                onPressed: () => navigateToAuth(isSignIn: false),
+                child: const Text('Signup'),
+              )
+            ],
+          )
+        ],
       ),
     );
   }

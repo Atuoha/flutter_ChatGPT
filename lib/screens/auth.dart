@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt/constants/colors.dart';
 import 'package:flutter_chatgpt/resources/assets_manager.dart';
 import '../components/loading_widget.dart';
+import '../components/k_coolAlert.dart';
+import '../constants/enums/auth_status.dart';
+import '../constants/enums/process_status.dart';
 import '../constants/enums/text_field_enum.dart';
 import '../business_logic/export.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cool_alert/cool_alert.dart';
+
+import 'chat_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key, required this.isSignIn}) : super(key: key);
@@ -118,11 +124,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   // google auth
   void googleAuth() {
-    print('hellooooo');
     FocusScope.of(context).unfocus();
-    setState(() {
-      isLoading = true;
-    });
     context.read<GoogleAuthCubit>().handleGoogleAuth();
   }
 
@@ -133,9 +135,7 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!valid) {
       return;
     }
-    setState(() {
-      isLoading = true;
-    });
+
     if (isSignIn) {
       context.read<SignInCubit>().handleSignIn(
             email: emailController.text,
@@ -160,137 +160,200 @@ class _AuthScreenState extends State<AuthScreen> {
           top: MediaQuery.of(context).padding.top,
         ),
         child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset(AssetManager.logo2, width: 150),
-                const SizedBox(height: 50),
-                Text(
-                  isSignIn ? 'Welcome back' : 'Create your account',
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 30,
+          child: MultiBlocListener(
+            listeners: [
+              // sign in
+              BlocListener<SignInCubit, SignInState>(
+                  listener: (context, state) {
+                if (state.status == ProcessStatus.loading) {
+                  setState(() {
+                    isLoading = true;
+                  });
+                } else if (state.status == ProcessStatus.error) {
+                  kCoolAlert(
+                    message: 'An error occurred! ${state.error.errorMsg}!',
+                    context: context,
+                    alert: CoolAlertType.error,
+                  );
+                }
+              }),
+
+              // sign up
+              BlocListener<SignUpCubit, SignUpState>(
+                  listener: (context, state) {
+                if (state.status == ProcessStatus.loading) {
+                  setState(() {
+                    isLoading = true;
+                  });
+                } else if (state.status == ProcessStatus.error) {
+                  kCoolAlert(
+                    message: 'An error occurred! ${state.error.errorMsg}!',
+                    context: context,
+                    alert: CoolAlertType.error,
+                  );
+                }
+              }),
+
+              // google auth
+              BlocListener<GoogleAuthCubit, GoogleAuthState>(
+                  listener: (context, state) {
+                if (state.status == ProcessStatus.loading) {
+                  setState(() {
+                    isLoading = true;
+                  });
+                } else if (state.status == ProcessStatus.error) {
+                  kCoolAlert(
+                    message: 'An error occurred! ${state.error.errorMsg}!',
+                    context: context,
+                    alert: CoolAlertType.error,
+                  );
+                }
+              }),
+
+              // auth bloc
+              BlocListener<AuthBloc, AuthState>(listener: (context, state) {
+                if (state.authStatus == AuthStatus.authenticated) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ChatScreen(),
+                    ),
+                  );
+                }
+              }),
+            ],
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(AssetManager.logo2, width: 150),
+                  const SizedBox(height: 50),
+                  Text(
+                    isSignIn ? 'Welcome back' : 'Create your account',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 30,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                !isLoading
-                    ? Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            kTextField(
-                              controller: emailController,
-                              textFieldEnum: TextFieldEnum.email,
-                              hintText: 'johndoe@gmail.com',
-                              label: 'Email Address',
-                            ),
-                            const SizedBox(height: 10),
-                            !isSignIn
-                                ? kTextField(
-                                    controller: usernameController,
-                                    textFieldEnum: TextFieldEnum.username,
-                                    hintText: 'John Doe',
-                                    label: 'Username',
-                                  )
-                                : const SizedBox.shrink(),
-                            SizedBox(height: isSignIn ? 0 : 10),
-                            kTextField(
-                              controller: passwordController,
-                              textFieldEnum: TextFieldEnum.password,
-                              hintText: '********',
-                              label: 'Password',
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: btnBg,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                  horizontal: 15,
-                                ),
+                  const SizedBox(height: 20),
+                  !isLoading
+                      ? Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              kTextField(
+                                controller: emailController,
+                                textFieldEnum: TextFieldEnum.email,
+                                hintText: 'johndoe@gmail.com',
+                                label: 'Email Address',
                               ),
-                              onPressed: () => handleAuth(),
-                              child: const Text(
-                                'Continue',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                ),
+                              const SizedBox(height: 10),
+                              !isSignIn
+                                  ? kTextField(
+                                      controller: usernameController,
+                                      textFieldEnum: TextFieldEnum.username,
+                                      hintText: 'John Doe',
+                                      label: 'Username',
+                                    )
+                                  : const SizedBox.shrink(),
+                              SizedBox(height: isSignIn ? 0 : 10),
+                              kTextField(
+                                controller: passwordController,
+                                textFieldEnum: TextFieldEnum.password,
+                                hintText: '********',
+                                label: 'Password',
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            Center(
-                              child: Wrap(
-                                children: [
-                                  Text(
-                                    !isSignIn
-                                        ? 'Already have an account?'
-                                        : 'Don\'t have an account?',
-                                    style: const TextStyle(color: primaryColor),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: btnBg,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 15,
                                   ),
-                                  const SizedBox(width: 5),
-                                  GestureDetector(
-                                    onTap: () => setState(() {
-                                      isSignIn = !isSignIn;
-                                    }),
+                                ),
+                                onPressed: () => handleAuth(),
+                                child: const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Center(
+                                child: Wrap(
+                                  children: [
+                                    Text(
+                                      !isSignIn
+                                          ? 'Already have an account?'
+                                          : 'Don\'t have an account?',
+                                      style:
+                                          const TextStyle(color: primaryColor),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    GestureDetector(
+                                      onTap: () => setState(() {
+                                        isSignIn = !isSignIn;
+                                      }),
+                                      child: Text(
+                                        !isSignIn ? 'Log in' : 'Sign up',
+                                        style: const TextStyle(color: btnBg),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: const [
+                                  Expanded(child: Divider(color: Colors.grey)),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 8.0),
                                     child: Text(
-                                      !isSignIn ? 'Log in' : 'Sign up',
-                                      style: const TextStyle(color: btnBg),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: const [
-                                Expanded(child: Divider(color: Colors.grey)),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Text(
-                                    'OR',
-                                    style: TextStyle(
-                                      color: Colors.grey,
+                                      'OR',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Expanded(child: Divider(color: Colors.grey)),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                  horizontal: 15,
-                                ),
-                              ),
-                              onPressed: () => googleAuth(),
-                              child: Wrap(
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    AssetManager.googleImage,
-                                    width: 30,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Text(
-                                    'Continue with Google',
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.grey),
-                                  ),
+                                  Expanded(child: Divider(color: Colors.grey)),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : const Center(child: LoadingWidget(size: 50))
-              ],
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                    horizontal: 15,
+                                  ),
+                                ),
+                                onPressed: () => googleAuth(),
+                                child: Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      AssetManager.googleImage,
+                                      width: 30,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    const Text(
+                                      'Continue with Google',
+                                      style: TextStyle(
+                                          fontSize: 18, color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const Center(child: LoadingWidget(size: 50))
+                ],
+              ),
             ),
           ),
         ),

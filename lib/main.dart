@@ -69,9 +69,10 @@ class ChatGptApp extends StatelessWidget {
             ),
           ),
         ],
-        child: const MaterialApp(
+        child:  MaterialApp(
+          theme: ThemeData(appBarTheme: const AppBarTheme(color:primaryColor)),
           debugShowCheckedModeBanner: false,
-          home: AppEntry(),
+          home: const AppEntry(),
         ),
       ),
     );

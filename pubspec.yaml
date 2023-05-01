@@ -45,6 +45,9 @@ dependencies:
   flutter_bloc: ^8.1.2
   equatable: ^2.0.5
   bloc: ^8.1.1
+  http: ^0.13.5
+  animated_text_kit: ^4.2.2
+  cool_alert: ^1.1.0
 
 dev_dependencies:
   flutter_test:
