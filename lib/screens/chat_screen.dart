@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart' as fbauth;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatgpt/components/text_loading.dart';
 import 'package:flutter_chatgpt/components/text_box.dart';
@@ -149,7 +150,15 @@ class _ChatScreenState extends State<ChatScreen> {
   void regenerateResponse() {}
 
   // copy response
-  void copyResponse() {}
+  void copyResponse() {
+    Clipboard.setData(const ClipboardData(text: 'abcdef')).then(
+      (_) => displaySnackBar(
+        status: Status.success,
+        message: 'Copied successfully',
+        context: context,
+      ),
+    );
+  }
 
   // like response
   void likeResponse() {}
@@ -183,15 +192,15 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: const [
-             Text(
+            Text(
               'Selected Model:',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
               ),
             ),
-             SizedBox(height: 10),
-           ModelDropDownButton(),
+            SizedBox(height: 10),
+            ModelDropDownButton(),
           ],
         ),
       ),
@@ -228,6 +237,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 backgroundColor: btnBg,
                 backgroundImage: NetworkImage(
                   user.profileImg ?? AssetManager.avatarUrl,
+
                 ),
               ),
             ),
@@ -259,12 +269,18 @@ class _ChatScreenState extends State<ChatScreen> {
             size: size,
             text: textController.text,
             imgUrl: user.profileImg ?? AssetManager.avatarUrl,
+            likeResponse: likeResponse,
+            copyResponse: copyResponse,
+            disLikeResponse: disLikeResponse,
           ),
           MessageBubble(
             isUser: false,
             size: size,
             text: textController.text,
             imgUrl: AssetManager.logo,
+            likeResponse: likeResponse,
+            copyResponse: copyResponse,
+            disLikeResponse: disLikeResponse,
           ),
         ],
       ),
@@ -284,3 +300,5 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+
+//

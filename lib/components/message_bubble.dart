@@ -8,12 +8,18 @@ class MessageBubble extends StatelessWidget {
     required this.size,
     required this.text,
     required this.isUser,
+    required this.copyResponse,
+    required this.likeResponse,
+    required this.disLikeResponse,
   }) : super(key: key);
 
   final Size size;
   final String text;
   final String imgUrl;
   final bool isUser;
+  final Function copyResponse;
+  final Function likeResponse;
+  final Function disLikeResponse;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +60,7 @@ class MessageBubble extends StatelessWidget {
                   children: [
                     // copy content
                     GestureDetector(
-                      onTap: () => null,
+                      onTap: () => copyResponse(),
                       child: const Icon(
                         Icons.content_paste,
                         size: 15,
@@ -65,7 +71,7 @@ class MessageBubble extends StatelessWidget {
 
                     // like
                     GestureDetector(
-                      onTap: () => null,
+                      onTap: () => likeResponse(),
                       child: const Icon(
                         Icons.thumb_up_outlined,
                         size: 15,
@@ -76,7 +82,7 @@ class MessageBubble extends StatelessWidget {
 
                     // dislike
                     GestureDetector(
-                      onTap: () => null,
+                      onTap: () => disLikeResponse(),
                       child: const Icon(
                         Icons.thumb_down_outlined,
                         size: 15,

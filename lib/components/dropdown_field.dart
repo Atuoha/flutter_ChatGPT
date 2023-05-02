@@ -10,7 +10,7 @@ class ModelDropDownButton extends StatefulWidget {
 }
 
 class _ModelDropDownButtonState extends State<ModelDropDownButton> {
-  var selectedModel = 'John';
+  var selectedModel = 'text-davinci-002-render-sha';
 
   @override
   Widget build(BuildContext context) {
