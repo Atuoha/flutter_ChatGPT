@@ -3,14 +3,19 @@ import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 
 class TextBox extends StatelessWidget {
-  const TextBox({Key? key, required this.textController,required this.size, required this.generateResponse}) : super(key: key);
+  const TextBox({
+    Key? key,
+    required this.textController,
+    required this.size,
+    required this.generateResponse,
+  }) : super(key: key);
   final Size size;
   final TextEditingController textController;
   final Function generateResponse;
 
   @override
   Widget build(BuildContext context) {
-   return Container(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
@@ -25,9 +30,12 @@ class TextBox extends StatelessWidget {
           ),
         ],
       ),
-      height: size.height / 15,
-      child: TextFormField(
+
+      // height: size.height / 15,
+      child: TextField(
+        maxLines: null,
         controller: textController,
+        onSubmitted: (value)=>generateResponse(),
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: 'Send a message',
@@ -40,8 +48,7 @@ class TextBox extends StatelessWidget {
             ),
           ),
           border: const OutlineInputBorder(borderSide: BorderSide.none),
-          focusedBorder:
-          const OutlineInputBorder(borderSide: BorderSide.none),
+          focusedBorder: const OutlineInputBorder(borderSide: BorderSide.none),
           enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide.none,
           ),

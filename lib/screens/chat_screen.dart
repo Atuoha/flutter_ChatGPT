@@ -6,7 +6,9 @@ import 'package:flutter_chatgpt/components/text_box.dart';
 import '../business_logic/auth_bloc/auth_bloc.dart';
 import '../business_logic/profile/profile_cubit.dart';
 import '../components/container_bg.dart';
+import '../components/dropdown_field.dart';
 import '../components/loading_widget.dart';
+import '../components/message_bubble.dart';
 import '../components/msg_snackbar.dart';
 import '../constants/colors.dart';
 import '../constants/enums/process_status.dart';
@@ -26,10 +28,9 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController textController = TextEditingController();
   bool isLoading = false;
+  bool doneResponding = false; //
   User user = User.initial(); // setting user to initial (empty)
   final userId = fbauth.FirebaseAuth.instance.currentUser!.uid; // user id
-
-
 
   // fetch user data
   Future<void> fetchUserData() async {
@@ -45,7 +46,6 @@ class _ChatScreenState extends State<ChatScreen> {
     fetchUserData();
     super.initState();
   }
-
 
   // generate response from OpenAI
   void generateResponse() {
@@ -64,7 +64,6 @@ class _ChatScreenState extends State<ChatScreen> {
     print(textController.text);
   }
 
-
   // sign out action
   void signOut() {
     context.read<AuthBloc>().add(SignOutEvent());
@@ -75,23 +74,23 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-
   // logout handle
   Future<void> logOutHandle() {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: primaryColor,
-        title: Row(
-          children: const [
-            Icon(Icons.logout,color: Colors.white,),
-            SizedBox(width: 10),
-            Text(
+        title: Row(children: const [
+          Icon(
+            Icons.logout,
+            color: Colors.white,
+          ),
+          SizedBox(width: 10),
+          Text(
             'Do you want to log out?',
             style: TextStyle(color: Colors.white),
           ),
-          ]
-        ),
+        ]),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -105,13 +104,15 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               user.username,
               style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                  color: Colors.white
-              ),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white),
             ),
             const SizedBox(height: 2),
-            Text(user.email,style: const TextStyle(color: Colors.white,fontSize: 14),),
+            Text(
+              user.email,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
           ],
         ),
         actions: [
@@ -138,6 +139,61 @@ class _ChatScreenState extends State<ChatScreen> {
             child: const Text('Dismiss'),
           ),
         ],
+      ),
+    );
+  }
+
+  // WILL BE PLACED ON A BLOC
+
+  // regenerate response
+  void regenerateResponse() {}
+
+  // copy response
+  void copyResponse() {}
+
+  // like response
+  void likeResponse() {}
+
+  // dislike response
+  void disLikeResponse() {}
+
+  //........
+
+  // edit text
+  void editText() {}
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  // show bottom modal
+  Future<void> showBottomSheet() async {
+    await showModalBottomSheet(
+      backgroundColor: msgBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+             Text(
+              'Selected Model:',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+             SizedBox(height: 10),
+           ModelDropDownButton(),
+          ],
+        ),
       ),
     );
   }
@@ -176,21 +232,40 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () => signOut(),
-            child: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.more_vert,
-                color: Colors.white,
-              ),
+          IconButton(
+            onPressed: () => showBottomSheet(),
+            icon: const Icon(
+              Icons.more_vert,
+              color: Colors.white,
             ),
           )
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
+      floatingActionButton: doneResponding
+          ? FloatingActionButton(
+              onPressed: () => regenerateResponse(),
+              backgroundColor: accentColor,
+              child: const Icon(
+                Icons.refresh,
+                color: Colors.white,
+              ),
+            )
+          : const SizedBox.shrink(),
       body: Column(
         children: [
-
+          MessageBubble(
+            isUser: true,
+            size: size,
+            text: textController.text,
+            imgUrl: user.profileImg ?? AssetManager.avatarUrl,
+          ),
+          MessageBubble(
+            isUser: false,
+            size: size,
+            text: textController.text,
+            imgUrl: AssetManager.logo,
+          ),
         ],
       ),
       bottomSheet: ContainerBg(
