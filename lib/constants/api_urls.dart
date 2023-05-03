@@ -1,4 +1,6 @@
-class APIUrls{
-  static const modelUrl = 'https://api.openai.com/v1/models';
-  static const responseUrl = 'https://api.openai.com/v1/chat/completions';
+class APIUrls {
+  static const String baseUrl = 'https://api.openai.com/v1';
+
+  static const modelUrl = '$baseUrl/models';
+  static const responseUrl = '$baseUrl/chat/completions';
 }

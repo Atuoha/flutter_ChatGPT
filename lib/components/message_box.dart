@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../constants/colors.dart';
 
-class TextBox extends StatelessWidget {
-  const TextBox({
+class MessageBox extends StatelessWidget {
+  const MessageBox({
     Key? key,
     required this.textController,
     required this.size,

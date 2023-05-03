@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatgpt/components/text_loading.dart';
-import 'package:flutter_chatgpt/components/text_box.dart';
+import 'package:flutter_chatgpt/components/message_box.dart';
+import 'package:flutter_chatgpt/repositories/api_repository.dart';
 import '../business_logic/auth_bloc/auth_bloc.dart';
 import '../business_logic/profile/profile_cubit.dart';
 import '../components/container_bg.dart';
@@ -29,6 +30,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController textController = TextEditingController();
   bool isLoading = false;
+  bool isProfileImgLoading = true;
   bool doneResponding = false; //
   User user = User.initial(); // setting user to initial (empty)
   final userId = fbauth.FirebaseAuth.instance.currentUser!.uid; // user id
@@ -38,6 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
     await context.read<ProfileCubit>().getProfile(userId: userId);
     setState(() {
       user = context.read<ProfileCubit>().state.user;
+      isProfileImgLoading = false;
     });
   }
 
@@ -49,7 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   // generate response from OpenAI
-  void generateResponse() {
+  void generateResponse() async {
     FocusScope.of(context).unfocus();
     if (textController.text.isEmpty) {
       displaySnackBar(
@@ -62,7 +65,11 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       isLoading = true;
     });
-    print(textController.text);
+    try {
+      await APIRepository.getModels();
+    } catch (e) {
+      print(e);
+    }
   }
 
   // sign out action
@@ -225,23 +232,19 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
         actions: [
-          BlocListener<ProfileCubit, ProfileState>(
-            listener: (context, state) {
-              if (state.status == ProcessStatus.loading) {
-                const LoadingWidget(size: 10);
-              }
-            },
-            child: GestureDetector(
-              onTap: () => logOutHandle(),
-              child: CircleAvatar(
-                backgroundColor: btnBg,
-                backgroundImage: NetworkImage(
-                  user.profileImg ?? AssetManager.avatarUrl,
-
+          isProfileImgLoading
+              ? const LoadingWidget(size: 10)
+              : GestureDetector(
+                  onTap: () => logOutHandle(),
+                  child: CircleAvatar(
+                    backgroundColor: btnBg,
+                    backgroundImage: NetworkImage(
+                      user.profileImg.isEmpty
+                          ? AssetManager.avatarUrl
+                          : user.profileImg,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
           IconButton(
             onPressed: () => showBottomSheet(),
             icon: const Icon(
@@ -289,7 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             isLoading ? const TextLoading() : const SizedBox.shrink(),
-            TextBox(
+            MessageBox(
               textController: textController,
               size: size,
               generateResponse: generateResponse,
@@ -300,4 +303,3 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
-
