@@ -85,6 +85,11 @@ class ChatGptApp extends StatelessWidget {
               profileRepository: context.read<ProfileRepository>(),
             ),
           ),
+
+          // api_work cubit
+          BlocProvider(
+            create: (context) => ApiWorkCubit(),
+          ),
         ],
         child: MaterialApp(
           theme: ThemeData(

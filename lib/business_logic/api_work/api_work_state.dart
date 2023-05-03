@@ -1,10 +1,27 @@
 part of 'api_work_cubit.dart';
 
-abstract class ApiWorkState extends Equatable {
-  const ApiWorkState();
-}
+class ApiWorkState extends Equatable {
+  final String selectedModel;
 
-class ApiWorkInitial extends ApiWorkState {
+  const ApiWorkState({required this.selectedModel});
+
+  factory ApiWorkState.initial() =>
+      const ApiWorkState(selectedModel: 'text-davinci-001');
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [selectedModel];
+
+
+  @override
+  String toString() {
+    return 'ApiWorkState{selectedModel: $selectedModel}';
+  }
+
+  ApiWorkState copyWith({
+    String? selectedModel,
+  }) {
+    return ApiWorkState(
+      selectedModel: selectedModel ?? this.selectedModel,
+    );
+  }
 }

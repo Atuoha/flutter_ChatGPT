@@ -20,7 +20,6 @@ class APIRepository {
       for (var value in jsonResponse['data']) {
         models.add(value);
       }
-      print(jsonResponse['id']);
       print(models);
       return ChatGPTModel.toModelList(models);
     } on CustomError catch (e) {

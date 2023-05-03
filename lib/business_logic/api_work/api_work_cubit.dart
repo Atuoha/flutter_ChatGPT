@@ -4,5 +4,9 @@ import 'package:equatable/equatable.dart';
 part 'api_work_state.dart';
 
 class ApiWorkCubit extends Cubit<ApiWorkState> {
-  ApiWorkCubit() : super(ApiWorkInitial());
+  ApiWorkCubit() : super(ApiWorkState.initial());
+
+  void selectModel(String model) {
+   emit( state.copyWith(selectedModel: model));
+  }
 }
