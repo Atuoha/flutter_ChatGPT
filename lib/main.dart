@@ -88,7 +88,7 @@ class ChatGptApp extends StatelessWidget {
 
           // api_work cubit
           BlocProvider(
-            create: (context) => ApiWorkCubit(),
+            create: (context) => OpenAiModelCubit(),
           ),
         ],
         child: MaterialApp(

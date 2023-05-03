@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chatgpt/business_logic/api_work/api_work_cubit.dart';
-
+import '../business_logic/open_ai_model/open_ai_model_cubit.dart';
 import '../constants/colors.dart';
 import '../repositories/api_repository.dart';
 
@@ -16,7 +15,7 @@ class _ModelDropDownButtonState extends State<ModelDropDownButton> {
 
   // persisting model
   void changeModel(String model) {
-    context.read<ApiWorkCubit>().selectModel(model);
+    context.read<OpenAiModelCubit>().selectModel(model);
   }
 
   @override
@@ -63,7 +62,7 @@ class _ModelDropDownButtonState extends State<ModelDropDownButton> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          value: context.watch<ApiWorkCubit>().state.selectedModel,
+          value: context.watch<OpenAiModelCubit>().state.selectedModel,
           style: const TextStyle(color: Colors.white),
           dropdownColor: msgBg,
           iconEnabledColor: btnBg,
