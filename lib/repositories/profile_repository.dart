@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fbauth;
 
 import '../constants/firestore_ref.dart';
-import '../models/custom_error.dart';
-import '../models/user.dart';
+import '../models/exports.dart';
 
 class ProfileRepository {
   final FirebaseFirestore firebaseFirestore;

@@ -15,6 +15,7 @@ import '../components/msg_snackbar.dart';
 import '../constants/colors.dart';
 import '../constants/enums/process_status.dart';
 import '../constants/enums/status.dart';
+import '../models/open_ai_completion.dart';
 import '../models/user.dart';
 import '../resources/assets_manager.dart';
 import '../resources/string_manager.dart';
@@ -49,27 +50,6 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     fetchUserData();
     super.initState();
-  }
-
-  // generate response from OpenAI
-  void generateResponse() async {
-    FocusScope.of(context).unfocus();
-    if (textController.text.isEmpty) {
-      displaySnackBar(
-        status: Status.error,
-        context: context,
-        message: 'Text can not be empty',
-      );
-      return;
-    }
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      await APIRepository.getModels();
-    } catch (e) {
-      print(e);
-    }
   }
 
   // sign out action
@@ -151,14 +131,35 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  // generate response from OpenAI
+  void generateCompletion() async {
+    FocusScope.of(context).unfocus();
+    if (textController.text.isEmpty) {
+      displaySnackBar(
+        status: Status.error,
+        context: context,
+        message: 'Text can not be empty',
+      );
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      // await APIRepository.getModels();
+    } catch (e) {
+      print(e);
+    }
+  }
+
   // WILL BE PLACED ON A BLOC
 
-  // regenerate response
-  void regenerateResponse() {}
+  // regenerate completion
+  void regenerateCompletion() {}
 
   // copy response
-  void copyResponse() {
-    Clipboard.setData(const ClipboardData(text: 'abcdef')).then(
+  void copyResponse(String text) {
+    Clipboard.setData(ClipboardData(text: text)).then(
       (_) => displaySnackBar(
         status: Status.success,
         message: 'Copied successfully',
@@ -167,16 +168,22 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // like response
-  void likeResponse() {}
+  // toggleIsLike response
+  void toggleIsLike({
+    required OpenAICompletion completion,
+    required bool value,
+  }) {
 
-  // dislike response
-  void disLikeResponse() {}
+  }
 
   //........
 
   // edit text
-  void editText() {}
+  void editText(String text) {
+    setState(() {
+      textController.text == text;
+    });
+  }
 
   @override
   void dispose() {
@@ -257,7 +264,7 @@ class _ChatScreenState extends State<ChatScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
       floatingActionButton: doneResponding
           ? FloatingActionButton(
-              onPressed: () => regenerateResponse(),
+              onPressed: () => regenerateCompletion(),
               backgroundColor: accentColor,
               child: const Icon(
                 Icons.refresh,
@@ -271,19 +278,21 @@ class _ChatScreenState extends State<ChatScreen> {
             isUser: true,
             size: size,
             text: textController.text,
-            imgUrl: user.profileImg ?? AssetManager.avatarUrl,
-            likeResponse: likeResponse,
+            imgUrl: user.profileImg.isEmpty
+                ? AssetManager.avatarUrl
+                : user.profileImg,
+            toggleIsLiked: toggleIsLike,
             copyResponse: copyResponse,
-            disLikeResponse: disLikeResponse,
+            editText: editText,
           ),
           MessageBubble(
             isUser: false,
             size: size,
             text: textController.text,
             imgUrl: AssetManager.logo,
-            likeResponse: likeResponse,
+            toggleIsLiked: toggleIsLike,
             copyResponse: copyResponse,
-            disLikeResponse: disLikeResponse,
+            editText: editText,
           ),
         ],
       ),
@@ -295,7 +304,7 @@ class _ChatScreenState extends State<ChatScreen> {
             MessageBox(
               textController: textController,
               size: size,
-              generateResponse: generateResponse,
+              generateResponse: generateCompletion,
             )
           ],
         ),

@@ -9,8 +9,8 @@ class MessageBubble extends StatelessWidget {
     required this.text,
     required this.isUser,
     required this.copyResponse,
-    required this.likeResponse,
-    required this.disLikeResponse,
+    required this.toggleIsLiked,
+    required this.editText
   }) : super(key: key);
 
   final Size size;
@@ -18,8 +18,8 @@ class MessageBubble extends StatelessWidget {
   final String imgUrl;
   final bool isUser;
   final Function copyResponse;
-  final Function likeResponse;
-  final Function disLikeResponse;
+  final Function toggleIsLiked;
+  final Function editText;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class MessageBubble extends StatelessWidget {
           child: isUser
               // edit
               ? GestureDetector(
-                  onTap: () => null,
+                  onTap: () => editText(text),
                   child: const Icon(
                     Icons.edit_note,
                     size: 18,
@@ -60,7 +60,7 @@ class MessageBubble extends StatelessWidget {
                   children: [
                     // copy content
                     GestureDetector(
-                      onTap: () => copyResponse(),
+                      onTap: () => copyResponse(text),
                       child: const Icon(
                         Icons.content_paste,
                         size: 15,
@@ -71,7 +71,7 @@ class MessageBubble extends StatelessWidget {
 
                     // like
                     GestureDetector(
-                      onTap: () => likeResponse(),
+                      onTap: () =>  toggleIsLiked(completion: '', value:true),
                       child: const Icon(
                         Icons.thumb_up_outlined,
                         size: 15,
@@ -82,7 +82,7 @@ class MessageBubble extends StatelessWidget {
 
                     // dislike
                     GestureDetector(
-                      onTap: () => disLikeResponse(),
+                      onTap: () => toggleIsLiked(completion: '', value:false),
                       child: const Icon(
                         Icons.thumb_down_outlined,
                         size: 15,
