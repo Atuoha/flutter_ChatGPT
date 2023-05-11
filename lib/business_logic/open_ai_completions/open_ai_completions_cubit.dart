@@ -12,22 +12,28 @@ class OpenAiCompletionsCubit extends Cubit<OpenAiCompletionsState> {
       : super(OpenAiCompletionsState.initial());
 
   // fetch completion
-  Future<OpenAICompletion> fetchCompletion({
-    required String text,
-    required OpenAIModel model,
-  }) async {
-    var completion =
-        await apiRepository.getCompletion(text: text, model: model);
-
-    var newCompletions = [...state.completions, completion];
-    emit(state.copyWith(completions: newCompletions));
-    setCurrentCompletion(completion.text);
-    return completion;
-  }
+  // Future<OpenAICompletion> fetchCompletion({
+  //   required String text,
+  //   required OpenAIModel model,
+  // }) async {
+  //   var completion =
+  //       await apiRepository.getCompletion(text: text, model: model);
+  //
+  //   var newCompletions = [...state.completions, completion];
+  //   emit(state.copyWith(completions: newCompletions));
+  //   setCurrentCompletion(completion.text);
+  //   setCurrentMessage(completion.text);
+  //   return completion;
+  // }
 
   // set current completion
   void setCurrentCompletion(String text) {
     emit(state.copyWith(currentCompletion: text));
+  }
+
+  // set current message
+  void setCurrentMessage(String text) {
+    emit(state.copyWith(currentMessage: text));
   }
 
   // toggle isLiked
@@ -38,11 +44,11 @@ class OpenAiCompletionsCubit extends Cubit<OpenAiCompletionsState> {
     final newCompletions = state.completions.map((OpenAICompletion completion) {
       if (completion.id == completionId) {
         return OpenAICompletion(
-            id: completion.id,
-            model: completion.model,
-            created: completion.created,
-            text: completion.text,
-            isLiked: value);
+          id: completion.id,
+          created: completion.created,
+          text: completion.text,
+          isLiked: value,
+        );
       }
       return completion;
     }).toList();

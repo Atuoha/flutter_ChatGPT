@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart' as fbauth;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chatgpt/business_logic/export.dart';
 import 'package:flutter_chatgpt/components/text_loading.dart';
 import 'package:flutter_chatgpt/components/message_box.dart';
 import 'package:flutter_chatgpt/repositories/api_repository.dart';
@@ -146,13 +147,15 @@ class _ChatScreenState extends State<ChatScreen> {
       isLoading = true;
     });
     try {
-      // await APIRepository.getModels();
+      await APIRepository.getCompletion(
+        text: textController.text,
+        model: context.read<OpenAiModelCubit>().state.selectedModel,
+      );
+
     } catch (e) {
       print(e);
     }
   }
-
-  // WILL BE PLACED ON A BLOC
 
   // regenerate completion
   void regenerateCompletion() {}
@@ -170,13 +173,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // toggleIsLike response
   void toggleIsLike({
-    required OpenAICompletion completion,
+    required String completionId,
     required bool value,
   }) {
-
+    context.read<OpenAiCompletionsCubit>().toggleCompletionIsLike(
+          completionId: completionId,
+          value: value,
+        );
   }
-
-  //........
 
   // edit text
   void editText(String text) {

@@ -28,27 +28,30 @@ class APIRepository {
   }
 
   // fetch OpenAICompletion
-  Future<OpenAICompletion> getCompletion({
+  static Future<OpenAICompletion> getCompletion({
     required String text,
-    required OpenAIModel model,
+    required String model,
   }) async {
     try {
-      var response =
-          await http.post(Uri.parse(APIUrls.completionUrl), headers: {
-        'Authorization': 'Bearer ${dotenv.env['API_KEY']}',
-        'Content-Type': "application/json",
-      }, body: {
-        "model": model.id,
-        "prompt": text,
-        "max_tokens": 100,
-        "temperature": 0
-      });
-      var jsonResponse = json.decode(response.body);
+      var response = await http.post(
+        Uri.parse(APIUrls.completionUrl),
+        headers: {
+          'Authorization': 'Bearer ${dotenv.env['API_KEY']}',
+          'Content-Type': "application/json",
+        },
+        body: jsonEncode({
+          "model": model,
+          "prompt": text,
+          "max_tokens": 100,
+          "temperature": 0
+        }),
+      );
+      Map jsonResponse = json.decode(response.body);
       if (jsonResponse['error'] != null) {
         throw http.ClientException(jsonResponse['error']['message']);
       }
-      print(jsonResponse);
-      return OpenAICompletion.fromJson(jsonResponse);
+      print(jsonResponse['choices']['text']);
+      return OpenAICompletion.fromJson(jsonResponse['choices']['text']);
     } on CustomError catch (e) {
       throw CustomError(errorMsg: e.errorMsg, code: e.code, plugin: e.plugin);
     }

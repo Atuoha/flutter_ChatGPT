@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../models/open_ai_completion.dart';
 
 class MessageBubble extends StatelessWidget {
-  const MessageBubble({
+    MessageBubble({
     Key? key,
     required this.imgUrl,
     required this.size,
@@ -10,7 +11,8 @@ class MessageBubble extends StatelessWidget {
     required this.isUser,
     required this.copyResponse,
     required this.toggleIsLiked,
-    required this.editText
+    required this.editText,
+    this.completionId = '',
   }) : super(key: key);
 
   final Size size;
@@ -20,6 +22,7 @@ class MessageBubble extends StatelessWidget {
   final Function copyResponse;
   final Function toggleIsLiked;
   final Function editText;
+  String completionId;
 
   @override
   Widget build(BuildContext context) {
@@ -63,29 +66,29 @@ class MessageBubble extends StatelessWidget {
                       onTap: () => copyResponse(text),
                       child: const Icon(
                         Icons.content_paste,
-                        size: 15,
+                        size: 14,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 4),
 
                     // like
                     GestureDetector(
-                      onTap: () =>  toggleIsLiked(completion: '', value:true),
+                      onTap: () =>  toggleIsLiked(completion: completionId, value:true),
                       child: const Icon(
                         Icons.thumb_up_outlined,
-                        size: 15,
+                        size: 14,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 4),
 
                     // dislike
                     GestureDetector(
-                      onTap: () => toggleIsLiked(completion: '', value:false),
+                      onTap: () => toggleIsLiked(completion: completionId, value:false),
                       child: const Icon(
                         Icons.thumb_down_outlined,
-                        size: 15,
+                        size: 14,
                         color: Colors.white,
                       ),
                     ),
