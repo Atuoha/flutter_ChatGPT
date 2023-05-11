@@ -45,7 +45,6 @@ class OpenAiCompletionsCubit extends Cubit<OpenAiCompletionsState> {
       if (completion.id == completionId) {
         return OpenAICompletion(
           id: completion.id,
-          created: completion.created,
           text: completion.text,
           isLiked: value,
         );
