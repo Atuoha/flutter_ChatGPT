@@ -28,7 +28,7 @@ class APIRepository {
   }
 
   // fetch OpenAICompletion
-  static Future<void> getCompletion({
+  static Future<List<OpenAICompletion>> getCompletion({
     required String text,
     required String model,
   }) async {
@@ -50,11 +50,65 @@ class APIRepository {
       if (jsonResponse['error'] != null) {
         throw http.ClientException(jsonResponse['error']['message']);
       }
-      if(jsonResponse['choices'].length > 0){
+      List<OpenAICompletion> completions = [];
+
+      if (jsonResponse['choices'].length > 0) {
+        completions = List.generate(
+          jsonResponse['choices'].length,
+          (index) => OpenAICompletion(
+            id: jsonResponse['id'],
+            text: jsonResponse['choices'][index]['text'],
+          ),
+        ).toList();
+
         print('RESPONSE: ${jsonResponse['choices'][0]['text']}');
       }
+      return completions;
+    } on CustomError catch (e) {
+      print(e.errorMsg);
+      throw CustomError(errorMsg: e.errorMsg, code: e.code, plugin: e.plugin);
+    }
+  }
 
-      // return OpenAICompletion.fromJson(jsonResponse['choices']['text']);
+  // fetch OpenAIChat
+  static Future<List<OpenAICompletion>> getChat({
+    required String text,
+    required String model,
+  }) async {
+    print('text:$text, model: $model');
+    try {
+      var response = await http.post(
+        Uri.parse(APIUrls.chatUrl),
+        headers: {
+          'Authorization': 'Bearer ${dotenv.env['API_KEY']}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "model": model,
+          "messages": [
+            {"role": "user", "content": text}
+          ],
+          "max_tokens": 100,
+        }),
+      );
+      Map jsonResponse = json.decode(response.body);
+      if (jsonResponse['error'] != null) {
+        throw http.ClientException(jsonResponse['error']['message']);
+      }
+      List<OpenAICompletion> completions = [];
+
+      if (jsonResponse['choices'].length > 0) {
+        completions = List.generate(
+          jsonResponse['choices'].length,
+          (index) => OpenAICompletion(
+            id: jsonResponse['id'],
+            text: jsonResponse['choices'][index]['message']['content'],
+          ),
+        ).toList();
+
+        print('RESPONSE: ${jsonResponse['choices'][0]['message']['content']}');
+      }
+      return completions;
     } on CustomError catch (e) {
       print(e.errorMsg);
       throw CustomError(errorMsg: e.errorMsg, code: e.code, plugin: e.plugin);

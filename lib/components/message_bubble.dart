@@ -28,6 +28,7 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: isUser ? primaryColor : accentColor,
+      padding: const EdgeInsets.symmetric(vertical:20),
       child: ListTile(
         // contentPadding: EdgeInsets.all(5),
         leading: isUser
@@ -40,8 +41,7 @@ class MessageBubble extends StatelessWidget {
                 backgroundImage: AssetImage(imgUrl),
               ),
         title: Text(
-          text,
-          textAlign: TextAlign.justify,
+          text.trim(),
           style: const TextStyle(
             color: Colors.white,
             height: 1.5,

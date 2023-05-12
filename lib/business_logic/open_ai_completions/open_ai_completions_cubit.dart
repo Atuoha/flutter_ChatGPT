@@ -36,6 +36,20 @@ class OpenAiCompletionsCubit extends Cubit<OpenAiCompletionsState> {
     emit(state.copyWith(currentMessage: text));
   }
 
+  // set completion
+  void setCompletion({required List<OpenAICompletion> completions}) {
+    List<OpenAICompletion> newCompletions = state.completions;
+    newCompletions.addAll(completions);
+    emit(state.copyWith(completions: newCompletions));
+  }
+
+  // set chat
+  void setChats({required List<OpenAICompletion> chats}) {
+    List<OpenAICompletion> newChats = state.chats;
+    newChats.addAll(chats);
+    emit(state.copyWith(chats: newChats));
+  }
+
   // toggle isLiked
   void toggleCompletionIsLike({
     required String completionId,

@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cool_alert/cool_alert.dart';
 
 import 'chat_screen.dart';
+import 'choose_type.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key, required this.isSignIn}) : super(key: key);
@@ -230,7 +231,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 if (state.authStatus == AuthStatus.authenticated) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const ChatScreen(),
+                      builder: (context) => const ChooseTypeScreen(),
                     ),
                   );
                 }

@@ -6,15 +6,15 @@ class OpenAiModelState extends Equatable {
 
   const OpenAiModelState({required this.selectedModel, required this.models});
 
-
   // initial()
-  factory OpenAiModelState.initial() =>
-      const OpenAiModelState(selectedModel: 'text-davinci-001', models: [],);
+  factory OpenAiModelState.initial() => const OpenAiModelState(
+        selectedModel: 'text-davinci-003',
+        models: [],
+      );
 
   // props
   @override
-  List<Object> get props => [selectedModel,models];
-
+  List<Object> get props => [selectedModel, models];
 
   // toString()
   @override
