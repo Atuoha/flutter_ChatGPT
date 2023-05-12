@@ -3,11 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatgpt/constants/colors.dart';
 import 'package:flutter_chatgpt/resources/string_manager.dart';
 import 'package:flutter_chatgpt/screens/auth.dart';
-import 'package:flutter_chatgpt/screens/completion_screen.dart';
 import '../business_logic/auth_bloc/auth_bloc.dart';
 import '../constants/enums/auth_status.dart';
 import '../resources/assets_manager.dart';
-import 'chat_screen.dart';
 import 'choose_type.dart';
 
 class AppEntry extends StatelessWidget {

@@ -3,7 +3,6 @@ import 'package:flutter_chatgpt/constants/colors.dart';
 import 'package:flutter_chatgpt/resources/string_manager.dart';
 import '../resources/assets_manager.dart';
 import 'chat_screen.dart';
-import 'completion_screen.dart';
 
 class ChooseTypeScreen extends StatelessWidget {
   const ChooseTypeScreen({Key? key}) : super(key: key);
@@ -14,7 +13,7 @@ class ChooseTypeScreen extends StatelessWidget {
     void navigateToCompletion() {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => const CompletionScreen(),
+          builder: (context) => const ChatScreen(isChat: false),
         ),
       );
     }
@@ -23,7 +22,7 @@ class ChooseTypeScreen extends StatelessWidget {
     void navigateToChat() {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => const ChatScreen(),
+          builder: (context) => const ChatScreen(isChat: true),
         ),
       );
     }

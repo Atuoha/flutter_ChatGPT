@@ -8,10 +8,12 @@ class MessageBox extends StatelessWidget {
     required this.textController,
     required this.size,
     required this.generateResponse,
+    required this.isTyping,
   }) : super(key: key);
   final Size size;
   final TextEditingController textController;
   final Function generateResponse;
+  final bool isTyping;
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +37,14 @@ class MessageBox extends StatelessWidget {
       child: TextField(
         maxLines: null,
         controller: textController,
-        onSubmitted: (value)=>generateResponse(),
+        textInputAction: TextInputAction.done,
+        onSubmitted: (value)=>isTyping ? null :generateResponse(),
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: 'Send a message',
           hintStyle: const TextStyle(color: hintColor),
           suffixIcon: GestureDetector(
-            onTap: () => generateResponse(),
+            onTap: () => isTyping ? null : generateResponse(),
             child: const Icon(
               Icons.send,
               color: hintColor,

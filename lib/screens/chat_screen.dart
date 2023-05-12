@@ -7,19 +7,23 @@ import 'package:flutter_chatgpt/components/text_loading.dart';
 import 'package:flutter_chatgpt/components/message_box.dart';
 import 'package:flutter_chatgpt/repositories/api_repository.dart';
 import '../components/container_bg.dart';
+import '../components/dropdown_field.dart';
 import '../components/loading_widget.dart';
 import '../components/message_bubble.dart';
 import '../components/msg_snackbar.dart';
 import '../constants/colors.dart';
 import '../constants/enums/status.dart';
-import '../models/open_ai_completion.dart';
 import '../models/user.dart';
 import '../resources/assets_manager.dart';
 import '../resources/string_manager.dart';
 import 'entry.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({Key? key}) : super(key: key);
+  const ChatScreen({
+    Key? key,
+    required this.isChat,
+  }) : super(key: key);
+  final bool isChat;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -32,23 +36,29 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isCompletionDone = false; //
   User user = User.initial(); // setting user to initial (empty)
   final userId = fbauth.FirebaseAuth.instance.currentUser!.uid; // user id
-
-  final model = 'gpt-3.5-turbo';
+  String model = 'gpt-3.5-turbo';
 
   // fetch user data
   Future<void> fetchUserData() async {
+    var mod =context.read<OpenAiModelCubit>();
     await context.read<ProfileCubit>().getProfile(userId: userId);
     setState(() {
       user = context.read<ProfileCubit>().state.user;
       isProfileImgLoading = false;
     });
+
+    if (!widget.isChat) {
+      setState(() {
+        model = 'text-davinci-003';
+      });
+      mod.selectModel(model);
+    }
   }
 
   // init State
   @override
   void initState() {
     fetchUserData();
-    context.read<OpenAiModelCubit>().selectModel(model);
     super.initState();
   }
 
@@ -152,7 +162,7 @@ class _ChatScreenState extends State<ChatScreen> {
     var cxt = context.read<OpenAiCompletionsCubit>(); // completion cubit
 
     try {
-      final chats = await APIRepository.getChat(
+      final data = await APIRepository.getCompletion(
         text: textController.text,
         model: context.read<OpenAiModelCubit>().state.selectedModel,
       );
@@ -163,8 +173,13 @@ class _ChatScreenState extends State<ChatScreen> {
       // persist completion
       cxt.setCurrentCompletion('');
 
-      // set completions
-      cxt.setChats(chats: chats);
+      if (widget.isChat) {
+        // set chats
+        cxt.setChats(chats: data);
+      } else {
+        // set completions
+        cxt.setCompletion(completions: data);
+      }
 
       setState(() {
         isCompletionDone = true;
@@ -217,9 +232,40 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  // show bottom modal
+  Future<void> showBottomSheet() async {
+    await showModalBottomSheet(
+      backgroundColor: msgBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Text(
+              'Selected Model:',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 10),
+            ModelDropDownButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    var openAICubit = context.read<OpenAiCompletionsCubit>().state;
 
     return Scaffold(
       backgroundColor: accentColor,
@@ -254,7 +300,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 ),
-          const SizedBox(width: 18),
+          widget.isChat
+              ? const SizedBox.shrink()
+              : IconButton(
+                  onPressed: () => showBottomSheet(),
+                  icon: const Icon(
+                    Icons.more_vert,
+                    color: Colors.white,
+                  ),
+                )
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
@@ -274,33 +328,27 @@ class _ChatScreenState extends State<ChatScreen> {
           child: SizedBox(
             height: size.height / 1,
             child: ListView.builder(
-                itemCount: context
-                    .read<OpenAiCompletionsCubit>()
-                    .state
-                    .chats
-                    .length,
+                itemCount: widget.isChat
+                    ? openAICubit.chats.length
+                    : openAICubit.completions.length,
                 itemBuilder: (context, index) {
-                  var completion = context
-                      .read<OpenAiCompletionsCubit>()
-                      .state
-                      .chats[index];
-                  return
-                      MessageBubble(
-                        isUser: completion.isUser,
-                        size: size,
-                        text: completion.text,
-                        imgUrl: completion.isUser
-                            ? user.profileImg.isEmpty
-                                ? AssetManager.avatarUrl
-                                : user.profileImg
-                            : AssetManager.logo,
-                        toggleIsLiked: toggleIsLike,
-                        copyResponse: copyResponse,
-                        editText: editText,
-                        completionId: completion.id,
-                      );
-
-
+                  var completion = widget.isChat
+                      ? openAICubit.chats[index]
+                      : openAICubit.completions[index];
+                  return MessageBubble(
+                    isUser: completion.isUser,
+                    size: size,
+                    text: completion.text,
+                    imgUrl: completion.isUser
+                        ? user.profileImg.isEmpty
+                            ? AssetManager.avatarUrl
+                            : user.profileImg
+                        : AssetManager.logo,
+                    toggleIsLiked: toggleIsLike,
+                    copyResponse: copyResponse,
+                    editText: editText,
+                    completionId: completion.id,
+                  );
                 }),
           )),
       bottomSheet: ContainerBg(
@@ -312,6 +360,7 @@ class _ChatScreenState extends State<ChatScreen> {
               textController: textController,
               size: size,
               generateResponse: generateCompletion,
+              isTyping: isTyping,
             )
           ],
         ),

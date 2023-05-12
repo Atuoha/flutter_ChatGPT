@@ -43,7 +43,7 @@ class APIRepository {
         body: jsonEncode({
           "model": model,
           "prompt": text,
-          "max_tokens": 100,
+          "max_tokens": 1000,
         }),
       );
       Map jsonResponse = json.decode(response.body);
@@ -88,7 +88,7 @@ class APIRepository {
           "messages": [
             {"role": "user", "content": text}
           ],
-          "max_tokens": 100,
+          "max_tokens": 1000,
         }),
       );
       Map jsonResponse = json.decode(response.body);

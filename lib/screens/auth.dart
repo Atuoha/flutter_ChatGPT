@@ -10,7 +10,6 @@ import '../business_logic/export.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cool_alert/cool_alert.dart';
 
-import 'chat_screen.dart';
 import 'choose_type.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -86,10 +85,11 @@ class _AuthScreenState extends State<AuthScreen> {
                       isPasswordObscured = !isPasswordObscured;
                     }),
                     child: Icon(
-                        isPasswordObscured
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: btnBg),
+                      isPasswordObscured
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: btnBg,
+                    ),
                   )
                 : const SizedBox.shrink()
             : const SizedBox.shrink(),
@@ -151,7 +151,6 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-
   // dismiss error dialog
   dismiss() {
     setState(() {
@@ -181,11 +180,10 @@ class _AuthScreenState extends State<AuthScreen> {
                   });
                 } else if (state.status == ProcessStatus.error) {
                   kCoolAlert(
-                    message: 'An error occurred! ${state.error.errorMsg}!',
-                    context: context,
-                    alert: CoolAlertType.error,
-                    action: dismiss
-                  );
+                      message: 'An error occurred! ${state.error.errorMsg}!',
+                      context: context,
+                      alert: CoolAlertType.error,
+                      action: dismiss);
                 }
               }),
 
@@ -198,11 +196,10 @@ class _AuthScreenState extends State<AuthScreen> {
                   });
                 } else if (state.status == ProcessStatus.error) {
                   kCoolAlert(
-                    message: 'An error occurred! ${state.error.errorMsg}!',
-                    context: context,
-                    alert: CoolAlertType.error,
-                      action: dismiss
-                  );
+                      message: 'An error occurred! ${state.error.errorMsg}!',
+                      context: context,
+                      alert: CoolAlertType.error,
+                      action: dismiss);
                 }
               }),
 
@@ -218,11 +215,10 @@ class _AuthScreenState extends State<AuthScreen> {
                     isLoading = false;
                   });
                   kCoolAlert(
-                    message: 'An error occurred! ${state.error.errorMsg}!',
-                    context: context,
-                    alert: CoolAlertType.error,
-                      action: dismiss
-                  );
+                      message: 'An error occurred! ${state.error.errorMsg}!',
+                      context: context,
+                      alert: CoolAlertType.error,
+                      action: dismiss);
                 }
               }),
 
