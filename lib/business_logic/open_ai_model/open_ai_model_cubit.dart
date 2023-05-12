@@ -18,7 +18,7 @@ class OpenAiModelCubit extends Cubit<OpenAiModelState> {
     return models;
   }
 
-  void selectModel(String model) {
+  void setModel(String model) {
     emit(state.copyWith(selectedModel: model));
   }
 }

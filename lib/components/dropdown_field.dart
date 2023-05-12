@@ -14,7 +14,7 @@ class ModelDropDownButton extends StatefulWidget {
 class _ModelDropDownButtonState extends State<ModelDropDownButton> {
   // persisting model
   void changeModel(String model) {
-    context.read<OpenAiModelCubit>().selectModel(model);
+    context.read<OpenAiModelCubit>().setModel(model);
   }
 
   @override

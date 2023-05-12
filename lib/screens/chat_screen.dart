@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chatgpt/business_logic/export.dart';
 import 'package:flutter_chatgpt/components/text_loading.dart';
 import 'package:flutter_chatgpt/components/message_box.dart';
+import 'package:flutter_chatgpt/models/exports.dart';
 import 'package:flutter_chatgpt/repositories/api_repository.dart';
 import '../components/container_bg.dart';
 import '../components/dropdown_field.dart';
@@ -21,9 +22,9 @@ import 'entry.dart';
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
     Key? key,
-    required this.isChat,
+    required this.isChatMode,
   }) : super(key: key);
-  final bool isChat;
+  final bool isChatMode;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -36,30 +37,23 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isCompletionDone = false; //
   User user = User.initial(); // setting user to initial (empty)
   final userId = fbauth.FirebaseAuth.instance.currentUser!.uid; // user id
-  String model = 'gpt-3.5-turbo';
 
   // fetch user data
   Future<void> fetchUserData() async {
-    var mod =context.read<OpenAiModelCubit>();
     await context.read<ProfileCubit>().getProfile(userId: userId);
     setState(() {
       user = context.read<ProfileCubit>().state.user;
       isProfileImgLoading = false;
     });
-
-    if (!widget.isChat) {
-      setState(() {
-        model = 'text-davinci-003';
-      });
-      mod.selectModel(model);
-    }
   }
 
   // init State
   @override
   void initState() {
-    fetchUserData();
     super.initState();
+    fetchUserData();
+    print('Mode: ${widget.isChatMode}');
+    print('Model: ${context.read<OpenAiModelCubit>().state.selectedModel}');
   }
 
   // sign out action
@@ -161,11 +155,30 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     var cxt = context.read<OpenAiCompletionsCubit>(); // completion cubit
 
-    try {
-      final data = await APIRepository.getCompletion(
+    List<OpenAICompletion> data = [];
+    data.add(
+      OpenAICompletion(
+        id: DateTime.now().toString(),
         text: textController.text,
-        model: context.read<OpenAiModelCubit>().state.selectedModel,
-      );
+        isUser: true,
+      ),
+    );
+    List<OpenAICompletion> response = [];
+    try {
+      if (widget.isChatMode) {
+        response = await APIRepository.getChat(
+          text: textController.text,
+          model: context.read<OpenAiModelCubit>().state.selectedModel,
+        );
+      } else {
+        response = await APIRepository.getCompletion(
+          text: textController.text,
+          model: context.read<OpenAiModelCubit>().state.selectedModel,
+        );
+      }
+
+      // accumulate data
+      data.addAll(response);
 
       // persist last sent text
       cxt.setCurrentMessage(textController.text);
@@ -173,7 +186,7 @@ class _ChatScreenState extends State<ChatScreen> {
       // persist completion
       cxt.setCurrentCompletion('');
 
-      if (widget.isChat) {
+      if (widget.isChatMode) {
         // set chats
         cxt.setChats(chats: data);
       } else {
@@ -300,7 +313,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 ),
-          widget.isChat
+          widget.isChatMode
               ? const SizedBox.shrink()
               : IconButton(
                   onPressed: () => showBottomSheet(),
@@ -308,7 +321,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     Icons.more_vert,
                     color: Colors.white,
                   ),
-                )
+                ),
+          SizedBox(width: widget.isChatMode ? 18 : 0),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
@@ -324,33 +338,34 @@ class _ChatScreenState extends State<ChatScreen> {
           : const SizedBox.shrink(),
       extendBody: true,
       body: Padding(
-          padding: const EdgeInsets.only(bottom: 70.0),
-          child: SizedBox(
-            height: size.height / 1,
-            child: ListView.builder(
-                itemCount: widget.isChat
-                    ? openAICubit.chats.length
-                    : openAICubit.completions.length,
-                itemBuilder: (context, index) {
-                  var completion = widget.isChat
-                      ? openAICubit.chats[index]
-                      : openAICubit.completions[index];
-                  return MessageBubble(
-                    isUser: completion.isUser,
-                    size: size,
-                    text: completion.text,
-                    imgUrl: completion.isUser
-                        ? user.profileImg.isEmpty
-                            ? AssetManager.avatarUrl
-                            : user.profileImg
-                        : AssetManager.logo,
-                    toggleIsLiked: toggleIsLike,
-                    copyResponse: copyResponse,
-                    editText: editText,
-                    completionId: completion.id,
-                  );
-                }),
-          )),
+        padding: const EdgeInsets.only(bottom: 70.0),
+        child: SizedBox(
+          height: size.height / 1,
+          child: ListView.builder(
+              itemCount: widget.isChatMode
+                  ? openAICubit.chats.length
+                  : openAICubit.completions.length,
+              itemBuilder: (context, index) {
+                var completion = widget.isChatMode
+                    ? openAICubit.chats[index]
+                    : openAICubit.completions[index];
+                return MessageBubble(
+                  isUser: completion.isUser,
+                  size: size,
+                  text: completion.text,
+                  imgUrl: completion.isUser
+                      ? user.profileImg.isEmpty
+                          ? AssetManager.avatarUrl
+                          : user.profileImg
+                      : AssetManager.logo,
+                  toggleIsLiked: toggleIsLike,
+                  copyResponse: copyResponse,
+                  editText: editText,
+                  completionId: completion.id,
+                );
+              }),
+        ),
+      ),
       bottomSheet: ContainerBg(
         child: Column(
           mainAxisSize: MainAxisSize.min,
