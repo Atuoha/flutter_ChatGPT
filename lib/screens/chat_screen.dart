@@ -63,6 +63,12 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    scrollToEnd();
+    super.didChangeDependencies();
+  }
+
   // scroll function
   void scrollToEnd() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -418,62 +424,58 @@ class _ChatScreenState extends State<ChatScreen> {
             )
           : const SizedBox.shrink(),
       extendBody: true,
-      body: Padding(
-        padding: const EdgeInsets.only(bottom: 70.0),
-        child: SizedBox(
-          height: size.height / 1,
-          child: ListView.builder(
-            controller: scrollController,
-            itemCount: widget.isChatMode
-                ? openAICubit.chats.length
-                : openAICubit.completions.length,
-            itemBuilder: (context, index) {
-              var completion = widget.isChatMode
-                  ? openAICubit.chats[index]
-                  : openAICubit.completions[index];
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: ListView.builder(
+              padding: const EdgeInsets.only(bottom: 20),
+              controller: scrollController,
+              itemCount: widget.isChatMode
+                  ? openAICubit.chats.length
+                  : openAICubit.completions.length,
+              itemBuilder: (context, index) {
+                var completion = widget.isChatMode
+                    ? openAICubit.chats[index]
+                    : openAICubit.completions[index];
 
-              // messageBubble for holding messages
-              return MessageBubble(
-                isUser: completion.isUser,
-                size: size,
-                text: completion.text,
-                imgUrl: completion.isUser
-                    ? user.profileImg.isEmpty
-                        ? AssetManager.avatarUrl
-                        : user.profileImg
-                    : AssetManager.logo,
-                toggleIsLiked: toggleIsLike,
-                copyResponse: copyResponse,
-                editText: editText,
-                completionId: completion.id,
-                isLiked: completion.isLiked,
-                operationType: widget.isChatMode
-                    ? OperationType.chat
-                    : OperationType.completion,
-                isFirstRun: isFirstRun,
-                indexPosition: index,
-                messageLength: widget.isChatMode
-                    ? openAICubit.chats.length
-                    : openAICubit.completions.length,
-              );
-            },
+                // messageBubble for holding messages
+                return MessageBubble(
+                  isUser: completion.isUser,
+                  size: size,
+                  text: completion.text,
+                  imgUrl: completion.isUser
+                      ? user.profileImg.isEmpty
+                          ? AssetManager.avatarUrl
+                          : user.profileImg
+                      : AssetManager.logo,
+                  toggleIsLiked: toggleIsLike,
+                  copyResponse: copyResponse,
+                  editText: editText,
+                  completionId: completion.id,
+                  isLiked: completion.isLiked,
+                  operationType: widget.isChatMode
+                      ? OperationType.chat
+                      : OperationType.completion,
+                  isFirstRun: isFirstRun,
+                  indexPosition: index,
+                  messageLength: widget.isChatMode
+                      ? openAICubit.chats.length
+                      : openAICubit.completions.length,
+                );
+              },
+            ),
           ),
-        ),
-      ),
-      bottomSheet: ContainerBg(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            isTyping ? const TextLoading() : const SizedBox.shrink(),
-            // message box
-            MessageBox(
-              textController: textController,
-              size: size,
-              generateResponse: generateCompletion,
-              isTyping: isTyping,
-            )
-          ],
-        ),
+
+          isTyping ? const TextLoading() : const SizedBox.shrink(),
+          // message box
+          MessageBox(
+            textController: textController,
+            size: size,
+            generateResponse: generateCompletion,
+            isTyping: isTyping,
+          )
+        ],
       ),
     );
   }
