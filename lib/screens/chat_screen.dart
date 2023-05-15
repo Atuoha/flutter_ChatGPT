@@ -226,6 +226,11 @@ class _ChatScreenState extends State<ChatScreen> {
       if (kDebugMode) {
         print(e);
       }
+      displaySnackBar(
+        status: Status.error,
+        message: e.toString(),
+        context: context,
+      );
     } finally {
       setState(() {
         isTyping = false;
@@ -265,6 +270,11 @@ class _ChatScreenState extends State<ChatScreen> {
       if (kDebugMode) {
         print(e);
       }
+      displaySnackBar(
+        status: Status.error,
+        message: e.toString(),
+        context: context,
+      );
     } finally {
       setState(() {
         isTyping = false;

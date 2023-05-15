@@ -46,28 +46,30 @@ class MessageBubble extends StatelessWidget {
                 backgroundColor: btnBg,
                 backgroundImage: AssetImage(imgUrl),
               ),
-        title:
-            // isUser
-            //     ?
+        title: isUser
+            ? Text(
+                text.trim(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  height: 1.5,
+                ),
+              )
+            : AnimatedTextKit(
+          repeatForever: false,
+                isRepeatingAnimation: false,
+                displayFullTextOnTap: true,
+                totalRepeatCount: 1,
+                animatedTexts: [
+                  TypewriterAnimatedText(
 
-            Text(
-          text.trim(),
-          style: const TextStyle(
-            color: Colors.white,
-            height: 1.5,
-          ),
-        ),
-        // : AnimatedTextKit(
-        //     animatedTexts: [
-        //       TypewriterAnimatedText(
-        //         text,
-        //         textStyle: const TextStyle(
-        //           color: Colors.white,
-        //           height: 1.5,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
+                    text.trim(),
+                    textStyle: const TextStyle(
+                      color: Colors.white,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
         trailing: SizedBox(
           width: size.width / 7,
           child: isUser
