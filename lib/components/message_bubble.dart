@@ -1,9 +1,10 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../models/open_ai_completion.dart';
 
 class MessageBubble extends StatelessWidget {
-    MessageBubble({
+  MessageBubble({
     Key? key,
     required this.imgUrl,
     required this.size,
@@ -28,7 +29,7 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: isUser ? primaryColor : accentColor,
-      padding: const EdgeInsets.symmetric(vertical:20),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: ListTile(
         // contentPadding: EdgeInsets.all(5),
         leading: isUser
@@ -40,13 +41,28 @@ class MessageBubble extends StatelessWidget {
                 backgroundColor: btnBg,
                 backgroundImage: AssetImage(imgUrl),
               ),
-        title: Text(
-          text.trim(),
-          style: const TextStyle(
-            color: Colors.white,
-            height: 1.5,
-          ),
-        ),
+        title:
+        // isUser
+        //     ?
+
+        Text(
+                text.trim(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  height: 1.5,
+                ),
+              ),
+            // : AnimatedTextKit(
+            //     animatedTexts: [
+            //       TypewriterAnimatedText(
+            //         text,
+            //         textStyle: const TextStyle(
+            //           color: Colors.white,
+            //           height: 1.5,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
         trailing: SizedBox(
           width: size.width / 7,
           child: isUser
@@ -74,7 +90,8 @@ class MessageBubble extends StatelessWidget {
 
                     // like
                     GestureDetector(
-                      onTap: () =>  toggleIsLiked(completion: completionId, value:true),
+                      onTap: () =>
+                          toggleIsLiked(completion: completionId, value: true),
                       child: const Icon(
                         Icons.thumb_up_outlined,
                         size: 14,
@@ -85,7 +102,8 @@ class MessageBubble extends StatelessWidget {
 
                     // dislike
                     GestureDetector(
-                      onTap: () => toggleIsLiked(completion: completionId, value:false),
+                      onTap: () =>
+                          toggleIsLiked(completion: completionId, value: false),
                       child: const Icon(
                         Icons.thumb_down_outlined,
                         size: 14,

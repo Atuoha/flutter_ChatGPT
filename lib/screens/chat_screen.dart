@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as fbauth;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,7 +15,6 @@ import '../components/message_bubble.dart';
 import '../components/msg_snackbar.dart';
 import '../constants/colors.dart';
 import '../constants/enums/status.dart';
-import '../models/user.dart';
 import '../resources/assets_manager.dart';
 import '../resources/string_manager.dart';
 import 'entry.dart';
@@ -52,8 +52,10 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     fetchUserData();
-    print('Mode: ${widget.isChatMode}');
-    print('Model: ${context.read<OpenAiModelCubit>().state.selectedModel}');
+    if (kDebugMode) {
+      print('Mode: ${widget.isChatMode}');
+      print('Model: ${context.read<OpenAiModelCubit>().state.selectedModel}');
+    }
   }
 
   // sign out action
@@ -183,9 +185,6 @@ class _ChatScreenState extends State<ChatScreen> {
       // persist last sent text
       cxt.setCurrentMessage(textController.text);
 
-      // persist completion
-      cxt.setCurrentCompletion('');
-
       if (widget.isChatMode) {
         // set chats
         cxt.setChats(chats: data);
@@ -199,7 +198,9 @@ class _ChatScreenState extends State<ChatScreen> {
         textController.clear();
       });
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     } finally {
       setState(() {
         isTyping = false;
@@ -207,8 +208,43 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // regenerate completion
-  void regenerateCompletion() {}
+  // regenerate completion or chat
+  void regenerateCompletion() async {
+    setState(() {
+      isTyping = true;
+    });
+    var cxt = context.read<OpenAiCompletionsCubit>(); // completion cubit
+
+    List<OpenAICompletion> response = [];
+    try {
+      if (widget.isChatMode) {
+        response = await APIRepository.getChat(
+          text: cxt.state.currentMessage,
+          model: context.read<OpenAiModelCubit>().state.selectedModel,
+        );
+      } else {
+        response = await APIRepository.getCompletion(
+          text: cxt.state.currentMessage,
+          model: context.read<OpenAiModelCubit>().state.selectedModel,
+        );
+      }
+      if (widget.isChatMode) {
+        // set chats
+        cxt.setChats(chats: response);
+      } else {
+        // set completions
+        cxt.setCompletion(completions: response);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    } finally {
+      setState(() {
+        isTyping = false;
+      });
+    }
+  }
 
   // copy response
   void copyResponse(String text) {
@@ -235,7 +271,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // edit text
   void editText(String text) {
     setState(() {
-      textController.text == text;
+      textController.text = text;
     });
   }
 
