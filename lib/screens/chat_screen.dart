@@ -39,6 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
   User user = User.initial(); // setting user to initial (empty)
   final userId = fbauth.FirebaseAuth.instance.currentUser!.uid; // user id
   late ScrollController scrollController;
+  bool isFirstRun = true; // this will be used to control the text animation
 
   // fetch user data
   Future<void> fetchUserData() async {
@@ -159,6 +160,9 @@ class _ChatScreenState extends State<ChatScreen> {
   // generate response from OpenAI
   void generateCompletion() async {
     FocusScope.of(context).unfocus();
+    setState(() {
+      isFirstRun = false;
+    });
     if (textController.text.isEmpty) {
       displaySnackBar(
         status: Status.error,
@@ -243,6 +247,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void regenerateCompletion() async {
     setState(() {
       isTyping = true;
+      isFirstRun = false;
     });
     var cxt = context.read<OpenAiCompletionsCubit>(); // completion cubit
 
@@ -445,6 +450,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 operationType: widget.isChatMode
                     ? OperationType.chat
                     : OperationType.completion,
+                isFirstRun: isFirstRun,
+                indexPosition: index,
+                messageLength: widget.isChatMode
+                    ? openAICubit.chats.length
+                    : openAICubit.completions.length,
               );
             },
           ),

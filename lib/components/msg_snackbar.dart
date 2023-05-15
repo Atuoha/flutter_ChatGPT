@@ -14,9 +14,11 @@ void displaySnackBar({
       content: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            message,
-            style: const TextStyle(color: Colors.white),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
           Icon(
             status == Status.success

@@ -17,6 +17,9 @@ class MessageBubble extends StatelessWidget {
     required this.completionId,
     required this.isLiked,
     required this.operationType,
+    required this.isFirstRun,
+    required this.indexPosition,
+    required this.messageLength,
   }) : super(key: key);
 
   final Size size;
@@ -29,6 +32,9 @@ class MessageBubble extends StatelessWidget {
   final String completionId;
   final bool isLiked;
   final OperationType operationType;
+  final bool isFirstRun;
+  final int indexPosition;
+  final int messageLength;
 
   @override
   Widget build(BuildContext context) {
@@ -54,22 +60,29 @@ class MessageBubble extends StatelessWidget {
                   height: 1.5,
                 ),
               )
-            : AnimatedTextKit(
-          repeatForever: false,
-                isRepeatingAnimation: false,
-                displayFullTextOnTap: true,
-                totalRepeatCount: 1,
-                animatedTexts: [
-                  TypewriterAnimatedText(
-
+            : !isFirstRun && indexPosition == messageLength - 1
+                ? AnimatedTextKit(
+                    repeatForever: false,
+                    isRepeatingAnimation: false,
+                    displayFullTextOnTap: true,
+                    totalRepeatCount: 0,
+                    animatedTexts: [
+                      TypewriterAnimatedText(
+                        text.trim(),
+                        textStyle: const TextStyle(
+                          color: Colors.white,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  )
+                : Text(
                     text.trim(),
-                    textStyle: const TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       height: 1.5,
                     ),
                   ),
-                ],
-              ),
         trailing: SizedBox(
           width: size.width / 7,
           child: isUser
