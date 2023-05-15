@@ -65,6 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void didChangeDependencies() {
+
     scrollToEnd();
     super.didChangeDependencies();
   }
