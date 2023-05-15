@@ -14,6 +14,7 @@ import '../components/loading_widget.dart';
 import '../components/message_bubble.dart';
 import '../components/msg_snackbar.dart';
 import '../constants/colors.dart';
+import '../constants/enums/operation_type.dart';
 import '../constants/enums/status.dart';
 import '../resources/assets_manager.dart';
 import '../resources/string_manager.dart';
@@ -37,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isCompletionDone = false; //
   User user = User.initial(); // setting user to initial (empty)
   final userId = fbauth.FirebaseAuth.instance.currentUser!.uid; // user id
+  late ScrollController scrollController;
 
   // fetch user data
   Future<void> fetchUserData() async {
@@ -51,11 +53,24 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    scrollController = ScrollController();
+    scrollToEnd();
     fetchUserData();
     if (kDebugMode) {
       print('Mode: ${widget.isChatMode}');
       print('Model: ${context.read<OpenAiModelCubit>().state.selectedModel}');
     }
+  }
+
+  // scroll function
+  void scrollToEnd() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.decelerate,
+      );
+    });
   }
 
   // sign out action
@@ -174,6 +189,7 @@ class _ChatScreenState extends State<ChatScreen> {
       // set completions
       cxt.setCompletion(completions: data);
     }
+    scrollToEnd(); // scroll to end
 
     // response from API
     List<OpenAICompletion> response = [];
@@ -214,6 +230,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         isTyping = false;
       });
+      scrollToEnd();
     }
   }
 
@@ -252,6 +269,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         isTyping = false;
       });
+      scrollToEnd();
     }
   }
 
@@ -268,12 +286,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // toggleIsLike response
   void toggleIsLike({
-    required String completionId,
+    required String id,
     required bool value,
+    required OperationType operationType,
   }) {
     context.read<OpenAiCompletionsCubit>().toggleCompletionIsLike(
-          completionId: completionId,
+          id: id,
           value: value,
+          operationType: operationType,
         );
   }
 
@@ -286,6 +306,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    scrollController.dispose();
     textController.dispose();
     super.dispose();
   }
@@ -387,28 +408,36 @@ class _ChatScreenState extends State<ChatScreen> {
         child: SizedBox(
           height: size.height / 1,
           child: ListView.builder(
-              itemCount: widget.isChatMode
-                  ? openAICubit.chats.length
-                  : openAICubit.completions.length,
-              itemBuilder: (context, index) {
-                var completion = widget.isChatMode
-                    ? openAICubit.chats[index]
-                    : openAICubit.completions[index];
-                return MessageBubble(
-                  isUser: completion.isUser,
-                  size: size,
-                  text: completion.text,
-                  imgUrl: completion.isUser
-                      ? user.profileImg.isEmpty
-                          ? AssetManager.avatarUrl
-                          : user.profileImg
-                      : AssetManager.logo,
-                  toggleIsLiked: toggleIsLike,
-                  copyResponse: copyResponse,
-                  editText: editText,
-                  completionId: completion.id,
-                );
-              }),
+            controller: scrollController,
+            itemCount: widget.isChatMode
+                ? openAICubit.chats.length
+                : openAICubit.completions.length,
+            itemBuilder: (context, index) {
+              var completion = widget.isChatMode
+                  ? openAICubit.chats[index]
+                  : openAICubit.completions[index];
+
+              // messageBubble for holding messages
+              return MessageBubble(
+                isUser: completion.isUser,
+                size: size,
+                text: completion.text,
+                imgUrl: completion.isUser
+                    ? user.profileImg.isEmpty
+                        ? AssetManager.avatarUrl
+                        : user.profileImg
+                    : AssetManager.logo,
+                toggleIsLiked: toggleIsLike,
+                copyResponse: copyResponse,
+                editText: editText,
+                completionId: completion.id,
+                isLiked: completion.isLiked,
+                operationType: widget.isChatMode
+                    ? OperationType.chat
+                    : OperationType.completion,
+              );
+            },
+          ),
         ),
       ),
       bottomSheet: ContainerBg(
@@ -416,6 +445,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             isTyping ? const TextLoading() : const SizedBox.shrink(),
+            // message box
             MessageBox(
               textController: textController,
               size: size,

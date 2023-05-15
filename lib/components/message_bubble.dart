@@ -1,10 +1,11 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatgpt/models/exports.dart';
 import '../constants/colors.dart';
-import '../models/open_ai_completion.dart';
+import '../constants/enums/operation_type.dart';
 
 class MessageBubble extends StatelessWidget {
-  MessageBubble({
+  const MessageBubble({
     Key? key,
     required this.imgUrl,
     required this.size,
@@ -13,7 +14,9 @@ class MessageBubble extends StatelessWidget {
     required this.copyResponse,
     required this.toggleIsLiked,
     required this.editText,
-    this.completionId = '',
+    required this.completionId,
+    required this.isLiked,
+    required this.operationType,
   }) : super(key: key);
 
   final Size size;
@@ -23,7 +26,9 @@ class MessageBubble extends StatelessWidget {
   final Function copyResponse;
   final Function toggleIsLiked;
   final Function editText;
-  String completionId;
+  final String completionId;
+  final bool isLiked;
+  final OperationType operationType;
 
   @override
   Widget build(BuildContext context) {
@@ -42,27 +47,27 @@ class MessageBubble extends StatelessWidget {
                 backgroundImage: AssetImage(imgUrl),
               ),
         title:
-        // isUser
-        //     ?
+            // isUser
+            //     ?
 
-        Text(
-                text.trim(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  height: 1.5,
-                ),
-              ),
-            // : AnimatedTextKit(
-            //     animatedTexts: [
-            //       TypewriterAnimatedText(
-            //         text,
-            //         textStyle: const TextStyle(
-            //           color: Colors.white,
-            //           height: 1.5,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
+            Text(
+          text.trim(),
+          style: const TextStyle(
+            color: Colors.white,
+            height: 1.5,
+          ),
+        ),
+        // : AnimatedTextKit(
+        //     animatedTexts: [
+        //       TypewriterAnimatedText(
+        //         text,
+        //         textStyle: const TextStyle(
+        //           color: Colors.white,
+        //           height: 1.5,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
         trailing: SizedBox(
           width: size.width / 7,
           child: isUser
@@ -90,10 +95,13 @@ class MessageBubble extends StatelessWidget {
 
                     // like
                     GestureDetector(
-                      onTap: () =>
-                          toggleIsLiked(completion: completionId, value: true),
-                      child: const Icon(
-                        Icons.thumb_up_outlined,
+                      onTap: () => toggleIsLiked(
+                        id: completionId,
+                        value: true,
+                        operationType: operationType,
+                      ),
+                      child: Icon(
+                        isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
                         size: 14,
                         color: Colors.white,
                       ),
@@ -102,8 +110,11 @@ class MessageBubble extends StatelessWidget {
 
                     // dislike
                     GestureDetector(
-                      onTap: () =>
-                          toggleIsLiked(completion: completionId, value: false),
+                      onTap: () => toggleIsLiked(
+                        id: completionId,
+                        value: false,
+                        operationType: operationType,
+                      ),
                       child: const Icon(
                         Icons.thumb_down_outlined,
                         size: 14,
