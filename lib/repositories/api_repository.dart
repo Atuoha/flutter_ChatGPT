@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_config/flutter_config.dart';
 import '../constants/api_urls.dart';
 import '../models/exports.dart';
+
+import 'config.dart';
 
 class APIRepository {
   // fetch OpenAIModels
   Future<List<OpenAIModel>> getModels() async {
+    var apiKey = await Config.fetchApiKey();
+
     try {
       var response = await http.get(Uri.parse(APIUrls.modelUrl), headers: {
-        'Authorization': 'Bearer ${FlutterConfig.get('API_KEY')}',
+        'Authorization': 'Bearer $apiKey',
       });
 
       Map jsonResponse = json.decode(response.body);
@@ -34,11 +36,12 @@ class APIRepository {
     required String model,
   }) async {
     print('text:$text, model: $model');
+    var apiKey = await Config.fetchApiKey();
     try {
       var response = await http.post(
         Uri.parse(APIUrls.completionUrl),
         headers: {
-          'Authorization': 'Bearer ${FlutterConfig.get('API_KEY')}',
+          'Authorization': 'Bearer $apiKey',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
@@ -77,11 +80,12 @@ class APIRepository {
     required String model,
   }) async {
     print('text:$text, model: $model');
+    var apiKey = await Config.fetchApiKey();
     try {
       var response = await http.post(
         Uri.parse(APIUrls.chatUrl),
         headers: {
-          'Authorization': 'Bearer ${FlutterConfig.get('API_KEY')}',
+          'Authorization': 'Bearer $apiKey',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({

@@ -10,16 +10,13 @@ import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'business_logic/export.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_config/flutter_config.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseApp app = await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // await dotenv.load();
-  await FlutterConfig.loadEnvVariables();
   runApp(const ChatGptApp());
 }
 
