@@ -2,7 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 
 class Config {
-  static Future<String?> fetchApiKey() async {
+  static Future<void> fetchApiKey() async {
     String key = '';
     try {
       final remoteConfig = FirebaseRemoteConfig.instance;
@@ -18,11 +18,10 @@ class Config {
       print(e);
     }
 
-   
+
 
     const storage = FlutterSecureStorage();
     await storage.write(key: 'API_KEY', value: key);
     String? apiKey = await storage.read(key: 'API_KEY');
-    return apiKey;
   }
 }

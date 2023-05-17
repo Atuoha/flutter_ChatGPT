@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chatgpt/repositories/api_repository.dart';
+import 'package:flutter_chatgpt/repositories/config.dart';
 import 'package:flutter_chatgpt/repositories/repos.dart';
 import 'package:flutter_chatgpt/screens/entry.dart';
 import 'constants/colors.dart';
@@ -17,6 +18,7 @@ Future<void> main() async {
   FirebaseApp app = await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await Config.fetchApiKey();
   runApp(const ChatGptApp());
 }
 
